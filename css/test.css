@@ -1,0 +1,13 @@
+@keyframes correct {
+	from { background-color: green; }
+	to { background-color: initial; }
+}
+
+@keyframes wrong {
+	from { background-color: red; }
+	to { background-color: initial; }
+}
+
+@keyframes nothing {
+
+}

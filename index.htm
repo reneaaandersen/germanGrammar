@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>XYZ</title>
+		<script
+			  src="https://code.jquery.com/jquery-3.3.1.min.js"
+			  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+			  crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+		
+		<link rel="stylesheet" href="css/test.css">
+	</head>
+	
+	<body>
+		<div class="container">
+			<h1>Header</h1>
+				<ul class="nav nav-tabs">
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Navneord</a>
+						<div class="dropdown-menu">
+							<a class="dropdown-item" data-container="nounCase" href="#">Kasus</a>
+							<a class="dropdown-item" data-container="nounTranslation" href="#">Oversættelse</a>
+							<!-- <a class="dropdown-item" href="#">Link 3</a>-->
+						</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Udsagnsord</a>
+						<div class="dropdown-menu">
+							<a class="dropdown-item" data-container="verbConjugation" href="#">Bøjning</a>
+							<a class="dropdown-item" data-container="verbTranslation" href="#">Oversættelse</a>
+						</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Præpositioner</a>
+						<div class="dropdown-menu">
+							<a class="dropdown-item" data-container="prepositionClass" href="#">Kasus</a>
+							<!-- <a class="dropdown-item" data-container="prepositionVerbs" href="#">Udsagnsord</a> -->
+						</div>
+					</li>
+				</ul> 
+			<div class="container" id="homeContainer">
+				<p>Velkommen. Klik på en af menuerne for at vælge test</p>
+				<button class="btn btn-primary gameButtonFlag d-none">FLAG!</button>
+			</div>
+			<div class="container" id="verbConjugation">
+				<h3>Udsagnsordsbøjning</h3>
+				<div class="dropdown">
+					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+						Alle udsagnsord
+					</button>
+					<div class="dropdown-menu">
+					</div>
+				</div> 
+				
+				<h5></h5>
+				<h6></h6>
+				
+				<div class="form-group">
+					<label for="usr">Infinitiv:</label>
+					<input type="text" class="form-control verbInfinitiv">
+					
+					<label for="usr">3. prät. ind.:</label>
+					<input type="text" class="form-control verbThirdPresent">
+					
+					<label for="usr">3. präs. ind.:</label>
+					<input type="text" class="form-control verbThirdPast">
+					
+					<label for="usr">1. kon. II:</label>
+					<input type="text" class="form-control verbKonjunktiv">
+					
+					<label for="usr">Partizip II:</label>
+					<input type="text" class="form-control verbPartizip">
+				</div>
+				
+				<button class="btn btn-primary gameButtonStart">Start</button>
+				<button class="btn btn-danger d-none gameButtonStop">Stop</button>
+				
+				<button class="btn btn-success gameButtonCheck">Check</button>
+				<button class="btn btn-success gameButtonNext">Next</button>
+				<button class="btn btn-warning gameButtonReset">Reset</button>
+				<button class="btn btn-warning gameButtonSkip">Skip</button>
+			</div>
+			
+			<div class="container" id="verbTranslation">
+				<h3>Oversættelse af udsagnsord</h3>
+				<div class="dropdown">
+					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+						Alle udsagnsord
+					</button>
+					<div class="dropdown-menu">
+					</div>
+				</div> 
+				
+				<h5></h5>
+				<h6></h6>
+				
+				<div class="form-group">
+					<label for="usr">Infinitiv:</label>
+					<input type="text" class="form-control verbInfinitiv">
+				</div>
+				
+				<button class="btn btn-primary gameButtonStart">Start</button>
+				<button class="btn btn-danger gameButtonStop">Stop</button>
+				
+				<button class="btn btn-success gameButtonCheck">Check</button>
+				<button class="btn btn-success gameButtonNext">Next</button>
+				<button class="btn btn-warning gameButtonReset">Reset</button>
+				<button class="btn btn-warning gameButtonSkip">Skip</button>
+			</div>
+			
+			<div class="container" id="nounCase">
+				<h3>Navneord kasus</h3>
+				<div class="dropdown">
+					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+						Alle navneord
+					</button>
+					<div class="dropdown-menu">
+					</div>
+				</div> 
+				
+				<h5></h5>
+				<h6></h6>
+				
+				<div class="form-group">
+					<label for="usr">Nominativ ental:</label>
+					<input type="text" class="form-control nominativSingular">
+				</div>
+				<div class="form-group">
+					<label for="usr">Genitiv ental:</label>
+					<input type="text" class="form-control genitivSingular">
+				</div>
+				<div class="form-group">
+					<label for="usr">Nominativ flertal:</label>
+					<input type="text" class="form-control nominativPlural">
+				</div>
+				<div class="form-group">
+					<label for="usr">Dativ flertal:</label>
+					<input type="text" class="form-control dativPlural">
+				</div>
+				
+				<button class="btn btn-primary gameButtonStart">Start</button>
+				<button class="btn btn-danger gameButtonStop">Stop</button>
+				
+				<button class="btn btn-success gameButtonCheck">Check</button>
+				<button class="btn btn-success gameButtonNext">Next</button>
+				<button class="btn btn-warning gameButtonReset">Reset</button>
+				<button class="btn btn-warning gameButtonSkip">Skip</button>
+			</div>
+			
+			<div class="container" id="nounTranslation">
+				<h3>Oversættelse af navneord</h3>
+				<div class="dropdown">
+					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+						Alle navneord
+					</button>
+					<div class="dropdown-menu">
+					</div>
+				</div> 
+				
+				<h5></h5>
+				<h6></h6>
+				
+				<div class="form-group">
+					<label for="usr">Nominativ singulær:</label>
+					<input type="text" class="form-control nominativSingular">
+				</div>
+				<div class="form-group">
+					<label for="usr">Nominativ flertal:</label>
+					<input type="text" class="form-control nominativPlural">
+				</div>
+				
+				<button class="btn btn-primary gameButtonStart">Start</button>
+				<button class="btn btn-danger gameButtonStop">Stop</button>
+				
+				<button class="btn btn-success gameButtonCheck">Check</button>
+				<button class="btn btn-success gameButtonNext">Next</button>
+				<button class="btn btn-warning gameButtonReset">Reset</button>
+				<button class="btn btn-warning gameButtonSkip">Skip</button>
+			</div>
+			
+			<div class="container" id="prepositionClass">
+				<h3>Kasus af preposition</h3>
+				
+				<h5></h5>
+				<h6></h6>
+				
+				<div class="form-check">
+					<label class="form-check-label">
+						<input type="radio" class="form-check-input dativPreposition" name="optradio">Dativ
+					</label>
+				</div>
+				<div class="form-check">
+					<label class="form-check-label">
+						<input type="radio" class="form-check-input akkusativPreposition" name="optradio">Akkusativ
+					</label>
+				</div>
+				<div class="form-check">
+					<label class="form-check-label">
+						<input type="radio" class="form-check-input genitivPreposition" name="optradio">Genitiv
+					</label>
+				</div>
+				<div class="form-check">
+					<label class="form-check-label">
+						<input type="radio" class="form-check-input combinedPreposition" name="optradio">Akkusativ/Dativ
+					</label>
+				</div>
+				
+				<button class="btn btn-primary gameButtonStart">Start</button>
+				<button class="btn btn-danger gameButtonStop">Stop</button>
+				
+				<button class="btn btn-success gameButtonCheck">Check</button>
+				<button class="btn btn-success gameButtonNext">Next</button>
+				<button class="btn btn-warning gameButtonReset">Reset</button>
+				<button class="btn btn-warning gameButtonSkip">Skip</button>
+			</div>
+			
+			<div class="container" id="prepositionVerbs">
+				<h3>Udsagnsordskasus</h3>
+				
+				<h5></h5>
+				<h6></h6>
+				
+				<div class="form-check">
+					<label class="form-check-label">
+						<input type="radio" class="form-check-input dativPreposition" name="optradio">Dativ
+					</label>
+				</div>
+				<div class="form-check">
+					<label class="form-check-label">
+						<input type="radio" class="form-check-input akkusativPreposition" name="optradio">Akkusativ
+					</label>
+				</div>
+				<div class="form-check">
+					<label class="form-check-label">
+						<input type="radio" class="form-check-input genitivPreposition" name="optradio">Genitiv
+					</label>
+				</div>
+				<div class="form-check">
+					<label class="form-check-label">
+						<input type="radio" class="form-check-input combinedPreposition" name="optradio">Akkusativ/Dativ
+					</label>
+				</div>
+				
+				<button class="btn btn-primary gameButtonStart">Start</button>
+				<button class="btn btn-danger gameButtonStop">Stop</button>
+				
+				<button class="btn btn-success gameButtonCheck">Check</button>
+				<button class="btn btn-success gameButtonNext">Next</button>
+				<button class="btn btn-warning gameButtonReset">Reset</button>
+				<button class="btn btn-warning gameButtonSkip">Skip</button>
+			</div>
+			
+			<!-- Successbesked -->
+			<div class="modal" id="myModal">
+			  <div class="modal-dialog">
+				<div class="modal-content">
+
+				  <!-- Modal Header -->
+				  <div class="modal-header">
+					<h4 class="modal-title">TILLYKKE</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				  </div>
+
+				  <!-- Modal body -->
+				  <div class="modal-body">
+					Godt gået knægt!
+				  </div>
+
+				  <!-- Modal footer -->
+				  <div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+				  </div>
+
+				</div>
+			  </div>
+			</div>
+			
+			<!-- Fejlbesked -->
+			<div class="modal" id="errorModal">
+			  <div class="modal-dialog">
+				<div class="modal-content">
+
+				  <!-- Modal Header -->
+				  <div class="modal-header">
+					<h4 class="modal-title">FEJL</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				  </div>
+
+				  <!-- Modal body -->
+				  <div class="modal-body">
+					
+				  </div>
+
+				  <!-- Modal footer -->
+				  <div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+				  </div>
+
+				</div>
+			  </div>
+			</div>
+		</div>
+		<script src="js/grammar.js"></script>
+		<script src="js/verb.js"></script>
+		<script src="js/noun.js"></script>
+		<script src="js/preposition.js"></script>
+	</body>
+</html>
