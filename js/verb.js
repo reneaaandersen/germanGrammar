@@ -31,6 +31,7 @@ function fetchVerbs(group) {
 			for ( var index = 0; index < data.message.length; index++ ) {
 				var hadMatch = false;
 				
+				// Check if there is already an identical verb with different tags and merge their tags if there is
 				for ( var verbIndex = 0; verbIndex < allVerbs.length; verbIndex++ ) {
 					if ( data.message[index][0] == allVerbs[verbIndex][1] &&  data.message[index][1] == allVerbs[verbIndex][2] &&  data.message[index][2] == allVerbs[verbIndex][3] ) {
 						allVerbs[verbIndex][0] += " " + group;
@@ -45,165 +46,110 @@ function fetchVerbs(group) {
 		}
 	});
 }
-				
 
-
-
-
-
-
-
-
-
-
-
-
-$("#verbConjugation").delegate(".dropdown-item", "click", function(){
-	var groupTag = $(this).text();
+// Reset button handler function for all verb quizes
+function verbButtonReset(event) {
+	activeVerbGroup = allVerbs.slice();
 	
-	activeVerbGroup = [];
+	$(event.data.selector + " > .dropdown > button").text("Alle udsagnsord");
+	$(event.data.selector + " .gameButtonStop").click();
+}
+$("#verbTranslation button.gameButtonReset").click({selector: "#verbTranslation"}, verbButtonReset);
+$("#verbConjugation button.gameButtonReset").click({selector: "#verbConjugation"}, verbButtonReset);
+
+// Start button handler function for all verb quizes
+function verbButtonStart(event) {
+	activeVerb = nextQuizElement(activeVerb, activeVerbGroup, 1, 2, event.data.selector);
+}
+$("#verbConjugation button.gameButtonStart").click({selector: "#verbConjugation"}, verbButtonStart);
+$("#verbTranslation button.gameButtonStart").click({selector: "#verbTranslation"}, verbButtonStart);
+
+// Stop button handler function for all verb quizes
+function verbButtonStop(event) {
+	activeVerb = nextQuizElement(activeVerb, activeVerbGroup, -1, -1, event.data.selector);
+}
+$("#verbTranslation button.gameButtonStop").click({selector: "#verbTranslation"}, verbButtonStop);
+$("#verbConjugation button.gameButtonStop").click({selector: "#verbConjugation"}, verbButtonStop);
+
+// Next button handler function for all verb quizes
+function verbButtonNext(event) {
+	$(event.data.selector + " > button.gameButtonNext").addClass("d-none");
+	$(event.data.selector + " > button.gameButtonCheck").removeClass("d-none");
 	
-	for ( var i = 0; i < allVerbs.length; i++ ) {
-		var tags = allVerbs[i][0].split(" ");
-		
-		
-		
-		for ( var tagCtr = 0; tagCtr < tags.length; tagCtr++ ) {
-			if (tags[tagCtr] == groupTag ) {
-				console.log(tags[tagCtr] + " contains " + groupTag + " --> " + allVerbs[i]);
-				
-				activeVerbGroup.push(allVerbs[i]);
-			}
-		}
+	// Remove the current verb from the list
+	activeVerbGroup.splice(activeVerb, 1);
+	
+	// If there is no more verbs, we win!
+	if ( activeVerbGroup.length == 0 ) {
+		$("#myModal").modal();
+		$(event.data.selector + " > button.gameButtonReset").click();
 	}
-	
-	$(this).parent().siblings("button").text(groupTag);
-	
-	$("#verbConjugation button.gameButtonStop").click();
-});
+	else {
+		activeVerb = nextQuizElement(activeVerb, activeVerbGroup, 1, 2, event.data.selector);
+		$(event.data.selector + " > button.gameButtonSkip").removeClass("d-none");
+	}	
+}
+$("#verbConjugation button.gameButtonNext").click({selector: "#verbConjugation"}, verbButtonNext);
+$("#verbTranslation button.gameButtonNext").click({selector: "#verbTranslation"}, verbButtonNext);
 
-$("#verbTranslation button.gameButtonReset").click(function() {
-	activeVerbGroup = allVerbs.slice();
-	activeVerb = 0;
-	
-	$("#verbTranslation > .dropdown > button").text("Alle udsagnsord");
-	$(this).siblings(".gameButtonStop").click();
-});
+// Skip button handler function for all verb quizes
+function verbButtonSkip(event) {
+	activeVerb = nextQuizElement(activeVerb, activeVerbGroup, 1, 2, event.data.selector);
+}
+$("#verbConjugation button.gameButtonSkip").click({selector: "#verbConjugation"}, verbButtonSkip);
+$("#verbTranslation button.gameButtonSkip").click({selector: "#verbTranslation"}, verbButtonSkip);
 
-$("#verbConjugation button.gameButtonReset").click(function() {
-	activeVerbGroup = allVerbs.slice();
-	activeVerb = 0;
-	
-	$("#verbConjugation > .dropdown > button").text("Alle udsagnsord");
-	$(this).siblings(".gameButtonStop").click();
-});
-
-$("#verbConjugation button.gameButtonStart").click(function() {
-	activeVerb = getRandomArrayIndex(activeVerbGroup);
-	
-	$(this).siblings("h5").text(activeVerbGroup[activeVerb][1]);
-	$(this).siblings("h6").text(activeVerbGroup[activeVerb][2]);
-	
-	clearInputs("#verbConjugation");
-});
-
-$("#verbTranslation button.gameButtonStart").click(function() {
-	activeVerb = getRandomArrayIndex(activeVerbGroup);
-	
-	clearInputs("#verbTranslation");
-	
-	$(this).siblings("h5").text(activeVerbGroup[activeVerb][1]);
-	$(this).siblings("h6").text(activeVerbGroup[activeVerb][2]);	
-});
-
-$("#verbTranslation button.gameButtonStop").click(function() {
-	activeVerb = 0;
-	
-	clearInputs("#verbTranslation");
-	
-	$(this).siblings("h5").text("");
-	$(this).siblings("h6").text("");
-});
-
-$("#verbConjugation button.gameButtonStop").click(function() {
-	activeVerb = 0;
-	
-	clearInputs("#verbConjugation");
-	
-	$(this).siblings("h5").text("");
-	$(this).siblings("h6").text("");
-});
-
-$("#verbTranslation").delegate(".dropdown-item", "click", function(){
-	var groupTag = $(this).text();
-	
+// Click handler for each verb group menu 
+function verbGroupClick(event) {
 	activeVerbGroup = [];
 	
 	for ( var i = 0; i < allVerbs.length; i++ ) {
 		var tags = allVerbs[i][0].split(" ");
 		
 		for ( var tagCtr = 0; tagCtr < tags.length; tagCtr++ ) {
-			if (tags[tagCtr] == groupTag ) {
+			if (tags[tagCtr] == $(this).text() ) {
 				activeVerbGroup.push(allVerbs[i]);
-				
 			}
 		}
 	}
 	
-	$(this).parent().siblings("button").text(groupTag);
-	
-	$("#verbTranslation button.gameButtonStop").click();
-});
+	$(event.data.selector + " .dropdown button").text($(this).text());
+	$(event.data.selector + " button.gameButtonStop").click();
+}
+$("#verbConjugation").delegate(".dropdown-item", "click", {selector: "#verbConjugation"}, verbGroupClick);
+$("#verbTranslation").delegate(".dropdown-item", "click", {selector: "#verbTranslation"}, verbGroupClick);
+
 
 $("#verbConjugation button.gameButtonCheck").click(function() {
-	var inf = $("#verbConjugation input.verbInfinitiv").val();
-	var pre = $("#verbConjugation input.verbThirdPresent").val();
-	var past = $("#verbConjugation input.verbThirdPast").val();
-	var kon = $("#verbConjugation input.verbKonjunktiv").val();
-	var par = $("#verbConjugation input.verbPartizip").val();
+	// Each get-key/selector pair
+	var checkVerbSelectors = [ 	[ "&inf=", "#verbConjugation input.verbInfinitiv"],
+								[ "&pre=", "#verbConjugation input.verbThirdPresent"],
+								[ "&past=", "#verbConjugation input.verbThirdPast"],
+								[ "&kon=", "#verbConjugation input.verbKonjunktiv"],
+								[ "&par=", "#verbConjugation input.verbPartizip"]];
 	
+	// Form the get request
 	var getString  = "validateVerb.php?baseword=" + activeVerbGroup[activeVerb][3];
-	    getString += "&inf="+inf;
-	    getString += "&pre="+pre;
-	    getString += "&past="+past;
-	    getString += "&kon="+kon;
-		getString += "&par="+par;
+	for ( var index = 0; index < checkVerbSelectors.length; index++ ) {
+		getString += checkVerbSelectors[index][0]+$(checkVerbSelectors[index][1]).val();
+	}
 	
+	// Send it
 	$.get(getString.toLowerCase(), function(data, status) {
 		if ( data.status == "OK" ) {
 			var allCorrect = true;
 			
-			if ( data.message[0] == 0 ) {
-				setAnimationForElement("#verbConjugation input.infinitiv", "wrong 1s");
-				allCorrect = false;
-			}
-			if ( data.message[1] == 0 ) {
-				setAnimationForElement("#verbConjugation input.verbThirdPresent", "wrong 1s");
-				allCorrect = false;
-			}
-			if ( data.message[2] == 0 ) {
-				setAnimationForElement("#verbConjugation input.verbThirdPast", "wrong 1s");
-				allCorrect = false;
-			}
-			if ( data.message[3] == 0 ) {
-				setAnimationForElement("#verbConjugation input.verbKonjunktiv", "wrong 1s");
-				allCorrect = false;
-			}
-			if ( data.message[4] == 0 ) {
-				setAnimationForElement("#verbConjugation input.verbPartizip", "wrong 1s");
-				allCorrect = false;
+			// Check if the user input was correct, and if it isn't indicate it with the "wrong" animation
+			for ( var index = 0; index < checkVerbSelectors.length; index++ ) {
+				if ( data.message[index] == 0 ) {
+					console.log(index + " " + checkVerbSelectors[index][1]);
+					setAnimationForElement(checkVerbSelectors[index][1], "wrong 1s");
+					allCorrect = false;
+				}
 			}
 			
 			if ( allCorrect ) {
-				$("#verbConjugation button.gameButtonCheck").siblings(".form-group").children("input").each(function () {
-					// Don't blink if it's disabled
-					if ( $(this).attr("disabled") != "disabled" ) {
-						setAnimationForElement(this, "correct 1s");
-					}
-				});
-				$("#verbConjugation button.gameButtonCheck").addClass("d-none");
-				$("#verbConjugation button.gameButtonNext").removeClass("d-none");
-				$("#verbConjugation button.gameButtonSkip").addClass("d-none");
+				correctVerbHandler("#verbConjugation")
 			}
 		}
 	});
@@ -223,75 +169,19 @@ $("#verbTranslation button.gameButtonCheck").click(function() {
 	}
 });
 
-// Common code for events that happen on a correct verb 
-// - Flash the input fields
-// - Hide check and skip buttons 
-// - Show the next button
+/* correctVebHandler: Common code for events that happen on a correct verb 
+ * - selector is the selector of the quiz container
+ */
 function correctVerbHandler(selector) {
+	// Show the "corret" animation for each input field
 	$(selector + " .form-group").children("input").each(function () {
 		setAnimationForElement(this, "correct 1s");
 	});
 	
+	// Show check and skip buttons
 	$(selector + " .gameButtonCheck").addClass("d-none");
 	$(selector + " .gameButtonSkip").addClass("d-none");
+	
+	// Hide the next button
 	$(selector + " .gameButtonNext").removeClass("d-none");
-}
-
-// Next button handler for the verb conjugation quiz
-$("#verbConjugation button.gameButtonNext").click(function() {
-	nextRound("#verbConjugation");
-});
-
-// Next button handler for the verb translation quiz
-$("#verbTranslation button.gameButtonNext").click(function() {
-	nextRound("#verbTranslation");
-});
-
-// Helper function that contains the common code for the two next button handlers
-function nextRound(selector) {
-	$(selector + " > button.gameButtonNext").addClass("d-none");
-	$(selector + " > button.gameButtonCheck").removeClass("d-none");
-	
-	// Remove the current verb from the list
-	activeVerbGroup.splice(activeVerb, 1);
-	
-	// If there is no more verbs, we win!
-	if ( activeVerbGroup.length == 0 ) {
-		$("#myModal").modal();
-		$(selector + " > button.gameButtonReset").click();
-	}
-	else {
-		setNextVerb(selector);
-		$(selector + " > button.gameButtonSkip").removeClass("d-none");
-	}	
-}
-
-// Skip button handler for the verb translation quiz
-$("#verbTranslation button.gameButtonSkip").click(function() {
-	setNextVerb("#verbTranslation");
-});
-
-// Skip button handler for the verb conjugation quiz
-$("#verbConjugation button.gameButtonSkip").click(function() {
-	setNextVerb("#verbConjugation");
-});
-
-// Helper function that contains the common code for the two skip button handlers
-// Switches the active verb to another one if there is any others in the list and sets the 
-// danish translation and danish description.
-function setNextVerb(container) {
-	var oldVerb = activeVerb;
-	
-	// Keep trying a random list element ONLY if there is actually another element to switch to
-	if ( activeVerbGroup.length > 1 || activeVerb > activeVerbGroup.length ) {
-		while ( activeVerb == oldVerb || activeVerb > activeVerbGroup.length ) {
-			activeVerb = getRandomArrayIndex(activeVerbGroup);
-		}
-	}	
-	
-	// Set the danish text and description
-	$(container + " > h5").text(activeVerbGroup[activeVerb][1]);
-	$(container + " > h6").text(activeVerbGroup[activeVerb][2]);
-	
-	clearInputs(container);
 }

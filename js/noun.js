@@ -309,7 +309,8 @@ $("#nounCase button.gameButtonNext").click(function() {
 });
 
 $("#nounTranslation button.gameButtonNext").click(function() {
-	nextNounHandler($(this), "#nounTranslation");
+	//nextNounHandler($(this), "#nounTranslation");
+	activeNoun = nextQuizElement(activeNoun, activeNounGroup, 1, 2, "#nounTranslation");
 });
 
 // Helper function for common code for the next buttons

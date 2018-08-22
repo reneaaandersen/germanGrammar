@@ -1,3 +1,8 @@
+// All the prepositions that is known to the human kind
+// (or what can be found within 15 minutes of googling :)
+// FIXME?: Why is the case set twice for an element?
+// NOTE: As it is currently the danish translations are not needed, however if a
+//       preposition translation quiz is added they might be.
 var allPrepositions = 	[     
 							[ 	"Dativ",		
 								"Fra",				"noget",				"Aus",				"Dativ"],
@@ -73,98 +78,18 @@ var allPrepositions = 	[
 var activePrepositionGroup = allPrepositions.slice();
 var activePreposition = 0;
 
-$("#prepositionVerbs .gameButtonReset").click(function(){
-	activeVerbGroup = [];
-	for ( var index = 0; index < allVerbs.length; index++ ) {
-		if ( allVerbs[index][8] != "" ) {
-			activeVerbGroup.push(allVerbs[index]);
-		}
-	}
-	
-	$(this).siblings(".gameButtonStop").click();
-});
-
 $("#prepositionClass .gameButtonReset").click(function(){
 	activePrepositionGroup = allPrepositions.slice();
-	
 	$(this).siblings(".gameButtonStop").click();
-});
-
-$("#prepositionVerbs .gameButtonStop").click(function(){
-	activePreposition = getRandomArrayIndex(activePrepositionGroup);
-	
-	$("#prepositionVerbs").children("h5").text("");
-	$("#prepositionVerbs").children("h6").text("");
-	
-	$("#prepositionVerbs input").each(function() {
-		$(this).prop('checked', false);
-	});
 });
 
 $("#prepositionClass .gameButtonStop").click(function(){
-	activePreposition = getRandomArrayIndex(activePrepositionGroup);
-	
-	$("#prepositionClass").children("h5").text("");
-	$("#prepositionClass").children("h6").text("");
-	
-	$("#prepositionClass input").each(function() {
-		$(this).prop('checked', false);
-	});
+	nextQuizElement(activePreposition, activePrepositionGroup, -1, -1, "#prepositionClass");
 });
 
 $("#prepositionClass .gameButtonStart").click(function(){
-	$("#prepositionClass").children("h5").text(activePrepositionGroup[activePreposition][3]);
-	$("#prepositionClass").children("h6").text("");
-	
-	$("#prepositionClass input").each(function() {
-		$(this).prop('checked', false);
-	});
+	activePreposition = nextQuizElement(activePreposition, activePrepositionGroup, 3, -1, "#prepositionClass");
 });
-
-$("#prepositionVerbs .gameButtonStart").click(function(){
-	$("#prepositionVerbs").children("h5").text(activeVerbGroup[activeVerb][3]);
-	$("#prepositionVerbs").children("h6").text("");
-	
-	$("#prepositionVerbs input").each(function() {
-		$(this).prop('checked', false);
-	});
-});
-
-$("#prepositionVerbs .gameButtonCheck").click(function(){
-	var isCorrect = true;
-	switch (activePrepositionGroup[activePreposition][8]) {
-		case "Dativ":
-			if ( $("#prepositionVerbs .dativPreposition:checked").val() != "on" ) {
-				isCorrect = false;
-			}
-			break;
-		case "Akkusativ":
-			if ( $("#prepositionVerbs .akkusativPreposition:checked").val() != "on" ) {
-				isCorrect = false;
-			}
-			break;
-		case "Genitiv":
-			if ( $("#prepositionVerbs .genitivPreposition:checked").val() != "on" ) {
-				isCorrect = false;
-			}
-			break;
-		case "Combined":
-			if ( $("#prepositionVerbs .combinedPreposition:checked").val() != "on" ) {
-				isCorrect = false;
-			}
-			break;
-	}
-	if ( isCorrect ) {
-		setAnimationForElement($("#prepositionVerbs :checked").parent().parent(), "correct 1s");
-		$(this).siblings(".gameButtonNext").removeClass("d-none");
-		$(this).siblings(".gameButtonSkip").addClass("d-none");
-		$(this).addClass("d-none");
-	}
-	else {
-		setAnimationForElement($("#prepositionVerbs :checked").parent().parent(), "wrong 1s");
-	}
-});
-
 
 $("#prepositionClass .gameButtonCheck").click(function(){
 	var isCorrect = true;
@@ -201,35 +126,6 @@ $("#prepositionClass .gameButtonCheck").click(function(){
 	}
 });
 
-$("#prepositionVerbs .gameButtonNext").click(function(){	
-	activeVerbGroup.splice(activeVerb, 1);
-	
-	if ( activeVerbGroup.length == 0 ) {
-		alert("Congratulations you have done it!!");
-		$(this).siblings(".gameButtonReset").click();
-		return;
-	}
-	
-	var oldPreposition = activeVerb;
-	
-	if ( activeVerbGroup.length > 1 || activeVerb >= activeVerbGroup.length ) {
-		while ( activeVerb == oldPreposition ) {
-			activeVerb = getRandomArrayIndex(activeVerbGroup);
-		}
-	}
-	
-	$("#prepositionVerbs").children("h5").text(activeVerbGroup[activeVerb][3]);
-	$("#prepositionVerbs").children("h6").text("");
-	
-	$("#prepositionVerbs input").each(function() {
-		$(this).prop('checked', false);
-	});
-	
-	$(this).siblings(".gameButtonCheck").removeClass("d-none");
-	$(this).siblings(".gameButtonSkip").removeClass("d-none");
-	$(this).addClass("d-none");
-});
-
 $("#prepositionClass .gameButtonNext").click(function(){	
 	activePrepositionGroup.splice(activePreposition, 1);
 	
@@ -239,56 +135,14 @@ $("#prepositionClass .gameButtonNext").click(function(){
 		return;
 	}
 	
-	var oldPreposition = activePreposition;
-	
-	if ( activePrepositionGroup.length > 1 || activePreposition >= activePrepositionGroup.length ) {
-		while ( activePreposition == oldPreposition ) {
-			activePreposition = getRandomArrayIndex(activePrepositionGroup);
-		}
-	}
-	
-	$("#prepositionClass").children("h5").text(activePrepositionGroup[activePreposition][3]);
-	$("#prepositionClass").children("h6").text("");
-	
-	$("#prepositionClass input").each(function() {
-		$(this).prop('checked', false);
-	});
+	activePreposition = nextQuizElement(activePreposition, activePrepositionGroup, 3, -1, "#prepositionClass");
 	
 	$(this).siblings(".gameButtonCheck").removeClass("d-none");
 	$(this).siblings(".gameButtonSkip").removeClass("d-none");
 	$(this).addClass("d-none");
 });
 
-$("#prepositionVerbs .gameButtonSkip").click(function(){
-	var oldVerb = activeVerb;
-	
-	if ( activeVerbGroup.length > 1 ) {
-		while ( activeVerb == oldVerb ) {
-			activeVerb = getRandomArrayIndex(activeVerbGroup);
-		}
-	}
-	
-	$("#prepositionVerbs").children("h5").text(activeVerbGroup[activeVerb][3]);
-	$("#prepositionVerbs").children("h6").text("");
-	
-	$("#prepositionVerbs input").each(function() {
-		$(this).prop('checked', false);
-	});
+$("#prepositionClass .gameButtonSkip").click(function(){
+	activePreposition = nextQuizElement(activePreposition, activePrepositionGroup, 3, -1, "#prepositionClass");
 });
 
-$("#prepositionClass .gameButtonSkip").click(function(){
-	var oldPreposition = activePreposition;
-	
-	if ( activePrepositionGroup.length > 1 ) {
-		while ( activePreposition == oldPreposition ) {
-			activePreposition = getRandomArrayIndex(activePrepositionGroup);
-		}
-	}
-	
-	$("#prepositionClass").children("h5").text(activePrepositionGroup[activePreposition][3]);
-	$("#prepositionClass").children("h6").text("");
-	
-	$("#prepositionClass input").each(function() {
-		$(this).prop('checked', false);
-	});
-});
