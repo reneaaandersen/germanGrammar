@@ -3,8 +3,7 @@
 // FIXME?: Why is the case set twice for an element?
 // NOTE: As it is currently the danish translations are not needed, however if a
 //       preposition translation quiz is added they might be.
-var allPrepositions = 	[     
-							[ 	"Dativ",		
+var allPrepositions = 	[	[ 	"Dativ",		
 								"Fra",				"noget",				"Aus",				"Dativ"],
 							[ 	"Dativ",		
 								"Undtagen",			"Uden for (fare)",		"Außer",			"Dativ"],
@@ -126,20 +125,10 @@ $("#prepositionClass .gameButtonCheck").click(function(){
 	}
 });
 
-$("#prepositionClass .gameButtonNext").click(function(){	
-	activePrepositionGroup.splice(activePreposition, 1);
-	
-	if ( activePrepositionGroup.length == 0 ) {
-		$("#myModal").modal();
-		$(this).siblings(".gameButtonReset").click();
-		return;
+$("#prepositionClass .gameButtonNext").click(function(){
+	if ( !commonButtonNext("#prepositionClass", activePreposition, activePrepositionGroup) ) {
+		activePreposition = nextQuizElement(activePreposition, activePrepositionGroup, 3, -1, "#prepositionClass");
 	}
-	
-	activePreposition = nextQuizElement(activePreposition, activePrepositionGroup, 3, -1, "#prepositionClass");
-	
-	$(this).siblings(".gameButtonCheck").removeClass("d-none");
-	$(this).siblings(".gameButtonSkip").removeClass("d-none");
-	$(this).addClass("d-none");
 });
 
 $("#prepositionClass .gameButtonSkip").click(function(){

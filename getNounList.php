@@ -71,11 +71,11 @@
 			$message = $message . '[';
 			$message = $message . '"' . $row['danish'] . '",';
 			$message = $message . '"' . $row['danishDescription'] . '",';
-			$message = $message . '"' . $row['base'] . '"';
-			//$message = $message . '"' . $row['nominativSingular'] . '",';
-			//$message = $message . '"' . $row['genitivSingular'] . '",';
-			//$message = $message . '"' . $row['nominativPlural'] . '",';
-			//$message = $message . '"' . $row['dativPlural'] . '"';
+			$message = $message . '"' . $row['base'] . '",';
+			$message = $message . '"' . $row['nominativSingular'] . '",';
+			$message = $message . '"' . $row['genitivSingular'] . '",';
+			$message = $message . '"' . $row['nominativPlural'] . '",';
+			$message = $message . '"' . $row['dativPlural'] . '"';
 			$message = $message . '], ';
 		}
 		$message = substr($message, 0, strlen($message)-2);

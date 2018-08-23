@@ -79,38 +79,45 @@ function getRandomNumber(max) {
 	return Math.floor((Math.random()*max));
 }
 
-/* getRandomArrayIndex
- * - array is the array from which we get the index
+/* getRandomArrayElement
+ * > Returns 	A random array element
+ * - array 		The array from which we get the element
  */
 function getRandomArrayIndex(array) {
 	return getRandomNumber(array.length);
 }
 
 /* getRandomArrayElement
- * - array is the array from which we get the element
+ * > Returns 	A random array element
+ * - array 		The array from which we get the element
  */
 function getRandomArrayElement(array) {
 	return array[getRandomNumber(array.length)];
 }
 
-/* clearInputs
- * - selector is the jQuery selector for the quiz container 
+/* clearInputs: Clears all the inputs of the given quiz container
+ * > Returns	Nothing
+ * - selector 	The jQuery selector for the quiz container 
  */
 function clearInputs(selector) {
-	$(selector).children(".form-group").children("input").each(function () {
-		$(this).val("");		
-		$(this).removeAttr("disabled");			// If it was disabled clear it. This could be the case for nouns with no plural for example.
-		//$(this).prop('checked', false)		// We can reuse this function to clear the prepositions checkboxes too
+	$(selector + " input").each(function() {
+		$(this).prop('checked', false);
+		// Do NOT remove the val of a radio/checkbox it'll make you sad
+		if ( $(this).prop('type') == 'text' ) {
+			$(this).removeAttr("disabled");
+			$(this).val("");
+		}		
 	});
 }
 
-/* pickActiveGroup
- * - sourceElement is the element that the user clicked to trigger the change of active group
- * - sourceArray is the array containing all the words (nouns/verbs) and their tags
- * - destinationArray is the array that all the words will go into if they match the tag
+/* pickActiveGroup: Common code for changing the sub-group of the quiz
+ * > Returns 			Nothing
+ * - sourceElement 		The element that the user clicked to trigger the change of active group
+ * - sourceArray 		The array containing all the words (nouns/verbs) and their tags
+ * - destinationArray 	The array that all the words will go into if they match the tag
  */
-function pickActiveGroup(sourceElement, sourceArray, destinationArray) {
-	var groupTag = sourceElement.text();
+function pickActiveGroup(sourceElement, selector, sourceArray, destinationArray) {
+	var groupTag = $(sourceElement).text();
 	
 	// Go through all the words in the list ..
 	for ( var i = 0; i < sourceArray.length; i++ ) {
@@ -125,15 +132,18 @@ function pickActiveGroup(sourceElement, sourceArray, destinationArray) {
 		}
 	}
 	
-	// Make the drop-down button show the selected group
-	sourceElement.parent().siblings("button").text(groupTag);
-	
-	// And use the stop button to reset back to a known state
-	//$("#nounTranslation button.gameButtonStop").click();
-	sourceElement.parent().parent().siblings(".gameButtonStop").click();
+	$(selector + " .dropdown button").text(groupTag);
+	$(selector + " button.gameButtonStop").click();
 }
 
-// The most generalized set new element function 
+/* nextQuizElement: Picks the next element from the list and sets the correct sub-titles
+ * > Returns 			The next element from the list
+ * - currentElement		The currently selected element
+ * - allElements		A list of all elements to pick from
+ * - titleIndex			The index in the element array where the title is located, -1 for blank
+ * - descriptionIndex	The index in the element array where the description is located, -1 for blank
+ * - containerSelector	A selector for the parent quiz container
+ */
 function nextQuizElement(currentElement, allElements, titleIndex, descriptionIndex, containerSelector) {
 	var newElement = currentElement;
 	
@@ -157,14 +167,67 @@ function nextQuizElement(currentElement, allElements, titleIndex, descriptionInd
 		$(containerSelector).children("h6").text(allElements[newElement][descriptionIndex]);
 	}
 	
-	$(containerSelector + " input").each(function() {
-		$(this).prop('checked', false);
-		// Do NOT remove the val of a radio/checkbox it'll make you sad
-		if ( $(this).prop('type') == 'text' ) {
-			$(this).removeAttr("disabled");
-			$(this).val("");
-		}		
-	});
+	clearInputs(containerSelector);
 	
 	return newElement;
+}
+
+/* commonButtonNext: Common code for next button handlers
+ * > Returns 		True if we used all the words in the list, false if we didn't
+ * - selector		The selector of the parent quiz container
+ * - activeElement	The element in the activeGroup we need to remove
+ * - activeGroup	The group to remove the active element from
+ */
+function commonButtonNext(selector, activeElement, activeGroup) {
+	$(selector + " .gameButtonNext").addClass("d-none");
+	$(selector + " .gameButtonCheck").removeClass("d-none");
+	
+	activeGroup.splice(activeElement, 1);
+	
+	if ( activeGroup.length == 0 ) {
+		$("#myModal").modal();
+		$(selector + " .gameButtonReset").click();
+		return true;
+	}
+	else {
+		$(selector + " .gameButtonSkip").removeClass("d-none");
+	}
+	return false;
+}
+
+/* correctVebHandler: Common code for events that happen on a correct word 
+ * > Returns	Nothing
+ * - selector   The selector of the quiz container
+ */
+function correctWordsHandler(selector) {
+	// Show the "corret" animation for each input field
+	$(selector + " .form-group").children("input").each(function () {
+		// Check that it's not a disabled field
+		if ( $(this).attr("disabled") == undefined ) {
+			setAnimationForElement(this, "correct 1s");
+		}
+	});
+	
+	// Show check and skip buttons
+	$(selector + " .gameButtonCheck").addClass("d-none");
+	$(selector + " .gameButtonSkip").addClass("d-none");
+	
+	// Hide the next button
+	$(selector + " .gameButtonNext").removeClass("d-none");
+}
+
+/* formGetRequest: Forms a get request used when fetching words from the database
+ * > Returns    A string representing the get request
+ * - page 		The url to send the get request to
+ * - baseword 	The base form of the word we want to request from the database
+ * - selectors  An array of two element arrays, first element describing the get key needed,
+ *              second descriping the selector of the element we get the value from
+ */
+function formGetRequest(page, baseword, selectors) {
+	var getString  = page + "?baseword=" + baseword;
+	for ( var index = 0; index < selectors.length; index++ ) {
+		getString += selectors[index][0]+$(selectors[index][1]).val();
+	}
+	
+	return getString;
 }

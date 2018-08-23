@@ -73,21 +73,9 @@ $("#verbConjugation button.gameButtonStop").click({selector: "#verbConjugation"}
 
 // Next button handler function for all verb quizes
 function verbButtonNext(event) {
-	$(event.data.selector + " > button.gameButtonNext").addClass("d-none");
-	$(event.data.selector + " > button.gameButtonCheck").removeClass("d-none");
-	
-	// Remove the current verb from the list
-	activeVerbGroup.splice(activeVerb, 1);
-	
-	// If there is no more verbs, we win!
-	if ( activeVerbGroup.length == 0 ) {
-		$("#myModal").modal();
-		$(event.data.selector + " > button.gameButtonReset").click();
-	}
-	else {
+	if ( !commonButtonNext(event.data.selector, activeVerb, activeVerbGroup) ) {
 		activeVerb = nextQuizElement(activeVerb, activeVerbGroup, 1, 2, event.data.selector);
-		$(event.data.selector + " > button.gameButtonSkip").removeClass("d-none");
-	}	
+	}
 }
 $("#verbConjugation button.gameButtonNext").click({selector: "#verbConjugation"}, verbButtonNext);
 $("#verbTranslation button.gameButtonNext").click({selector: "#verbTranslation"}, verbButtonNext);
@@ -102,22 +90,10 @@ $("#verbTranslation button.gameButtonSkip").click({selector: "#verbTranslation"}
 // Click handler for each verb group menu 
 function verbGroupClick(event) {
 	activeVerbGroup = [];
-	
-	for ( var i = 0; i < allVerbs.length; i++ ) {
-		var tags = allVerbs[i][0].split(" ");
-		
-		for ( var tagCtr = 0; tagCtr < tags.length; tagCtr++ ) {
-			if (tags[tagCtr] == $(this).text() ) {
-				activeVerbGroup.push(allVerbs[i]);
-			}
-		}
-	}
-	
-	$(event.data.selector + " .dropdown button").text($(this).text());
-	$(event.data.selector + " button.gameButtonStop").click();
+	pickActiveGroup(event.target, event.data.selector, allVerbs, activeVerbGroup);
 }
-$("#verbConjugation").delegate(".dropdown-item", "click", {selector: "#verbConjugation"}, verbGroupClick);
-$("#verbTranslation").delegate(".dropdown-item", "click", {selector: "#verbTranslation"}, verbGroupClick);
+$("#verbConjugation").delegate(".dropdown-item", "click", {selector: "#verbConjugation", sourceArray: allVerbs }, verbGroupClick);
+$("#verbTranslation").delegate(".dropdown-item", "click", {selector: "#verbTranslation", sourceArray: allVerbs }, verbGroupClick);
 
 
 $("#verbConjugation button.gameButtonCheck").click(function() {
@@ -128,14 +104,9 @@ $("#verbConjugation button.gameButtonCheck").click(function() {
 								[ "&kon=", "#verbConjugation input.verbKonjunktiv"],
 								[ "&par=", "#verbConjugation input.verbPartizip"]];
 	
-	// Form the get request
-	var getString  = "validateVerb.php?baseword=" + activeVerbGroup[activeVerb][3];
-	for ( var index = 0; index < checkVerbSelectors.length; index++ ) {
-		getString += checkVerbSelectors[index][0]+$(checkVerbSelectors[index][1]).val();
-	}
-	
 	// Send it
-	$.get(getString.toLowerCase(), function(data, status) {
+	$.get(formGetRequest("validateVerb.php", activeVerbGroup[activeVerb][3], checkVerbSelectors).toLowerCase(), function(data, status) {
+	//$.get(getString.toLowerCase(), function(data, status) {
 		if ( data.status == "OK" ) {
 			var allCorrect = true;
 			
@@ -149,11 +120,12 @@ $("#verbConjugation button.gameButtonCheck").click(function() {
 			}
 			
 			if ( allCorrect ) {
-				correctVerbHandler("#verbConjugation")
+				correctWordsHandler("#verbConjugation")
 			}
 		}
 	});
 });
+
 
 
 // Handler for the check button for verb translations
@@ -165,23 +137,6 @@ $("#verbTranslation button.gameButtonCheck").click(function() {
 		setAnimationForElement("#verbTranslation input.verbInfinitiv", "wrong 1s");
 	}
 	else {
-		correctVerbHandler("#verbTranslation")
+		correctWordsHandler("#verbTranslation")
 	}
 });
-
-/* correctVebHandler: Common code for events that happen on a correct verb 
- * - selector is the selector of the quiz container
- */
-function correctVerbHandler(selector) {
-	// Show the "corret" animation for each input field
-	$(selector + " .form-group").children("input").each(function () {
-		setAnimationForElement(this, "correct 1s");
-	});
-	
-	// Show check and skip buttons
-	$(selector + " .gameButtonCheck").addClass("d-none");
-	$(selector + " .gameButtonSkip").addClass("d-none");
-	
-	// Hide the next button
-	$(selector + " .gameButtonNext").removeClass("d-none");
-}

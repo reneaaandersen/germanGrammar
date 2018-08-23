@@ -3,11 +3,13 @@ var activeNounGroup = allNouns.slice();
 var activeNoun = 0;
 var nounGroups = {};
 
+
+
 // Get each and every tag group that exists for nouns
 $.get("getNounGroups.php", function(data, status) {
 	if ( data.status == "error" || data.message.length == 0 ) {
-		// TODO: Add better error reporting
-		console.log("Error while fetching the noun groups.");
+		$("#errorModal .modal-body").text(data.message);
+		$("#errorModal").modal();
 	}
 	else {	
 		for ( var index = 0; index < data.message.length; index++ ) {
@@ -20,313 +22,197 @@ $.get("getNounGroups.php", function(data, status) {
 	}
 });
 
+
+
 // Helper function. Used per tag group to fetch all nouns that matches it
 function fetchNouns(group) {
 	$.get("getNounList.php?limit=100&tags=" + group, function(data, status) {
 		if ( data.status == "error" || data.message.length == 0 ) {
-			console.log("Error while fetching the noun groups.");
+			$("#errorModal .modal-body").text(data.message);
+			$("#errorModal").modal();
 		}
 		else {
 			for ( var index = 0; index < data.message.length; index++ ) {
-				allNouns.push([group, data.message[index][0], data.message[index][1], data.message[index][2]]);
-			}
-		}
-		compactNounArray();
-	});
-}
-
-// Helper function. Used to combine tags for identical nouns
-function compactNounArray() {
-	var newNounArray = [];
-
-	while ( allNouns.length > 0 ) {
-		var noun = allNouns.pop();
-		
-		for ( var index = allNouns.length-1; index >= 0; index-- ) {		
-			// If it matches the danish word, the danish description and the german base word then it's most likely the same word
-			if ( allNouns[index][1] == noun[1] && allNouns[index][2] == noun[2] && allNouns[index][3] == noun[3] ) {
-				if ( !noun[0].includes(allNouns[index][0]) ) {
-					noun[0] += " " + allNouns[index][0];
-					allNouns.pop();
+				var hadMatch = false;
+				
+				// Check if there is already an identical noun with different tags and merge their tags if there is
+				for ( var nounIndex = 0; nounIndex < allNouns.length; nounIndex++ ) {
+					if ( data.message[index][0] == allNouns[nounIndex][1] &&  data.message[index][1] == allNouns[nounIndex][2] &&  data.message[index][2] == allNouns[nounIndex][3] ) {
+						if ( !allNouns[nounIndex][0].includes(group) ) {
+							allNouns[nounIndex][0] += " " + group;
+						}
+						hadMatch = true;
+						break;
+					}
+				}
+				if ( !hadMatch ) {
+					var noun = [group, data.message[index][0], data.message[index][1], data.message[index][2], true, true];
+					
+					if ( data.message[index][4] == "—" ) {
+						noun[4] = false;
+					}
+					if ( data.message[index][5] == "—" ) {
+						noun[5] = false;
+					}
+					
+					allNouns.push(noun);
 				}
 			}
 		}
-		
-		newNounArray.push(noun);
-	}
-	
-	allNouns = newNounArray;
+	});
 }
 
-// Helper function to check if the user input matches a noun or an alternative way of spelling
-function checkNoun(userInputSelector, noun) {
-	var userInput = $(userInputSelector).val();
-	
-	// Because we use slashes for alternative spelling we have to check if
-	// the user entered one. If not he might get a correct for "Des Hundes/Des Hunds"
-	if ( userInput.indexOf("/") != -1 ) {
-		setAnimationForElement(userInputSelector, "wrong 1s");
-		return false;
-	}
-	
-	// Check each way of spelling
-	var nounAlts = noun.split("/");
-	for ( var index = 0; index < nounAlts.length; index++ ) {
-		// If there is a complete match, we're done
-		if ( nounAlts[index] == userInput ) {
-			return true;
+$("#nounCase").delegate("", "keypress", function(event) {
+	if ( event.which == 13 ) {
+		if ( $("#nounCase button.gameButtonCheck").hasClass("d-none") ) {
+			$("#nounCase button.gameButtonNext").click();
+		}
+		if ( $("#nounCase button.gameButtonNext").hasClass("d-none") ) {
+			$("#nounCase button.gameButtonCheck").click();
 		}
 	}
-	
-	// No match, no cookie :(
-	setAnimationForElement(userInputSelector, "wrong 1s");
-	return false;
-}
+});
 
-// Helper function to reset noun related games
-function nounReset(selector) {
-	activeNounGroup = allNouns.slice();
-	activeNoun = 0;
-	
-	$(selector + " > .dropdown > button").text("Alle udsagnsord");
-	$(selector).children(".gameButtonStop").click();
-}
-
-// Helper function to set the next noun, title and whether or not a field is inactive
-function setNextNoun(selector) {
-	var oldNoun = activeNoun;
-	
-	if ( activeNounGroup.length > 1 ) {
-		while ( activeNoun == oldNoun ) {
-			activeNoun = getRandomArrayIndex(activeNounGroup);
+$("#nounCase").delegate("input", "keypress", function(event) {
+	if ( event.which == 13 ) {
+		if ( $("#nounCase button.gameButtonCheck").hasClass("d-none") ) {
+			$("#nounCase button.gameButtonNext").click();
+		}
+		if ( $("#nounCase button.gameButtonNext").hasClass("d-none") ) {
+			$("#nounCase button.gameButtonCheck").click();
 		}
 	}
-	
-	$(selector).children("h5").text(activeNounGroup[activeNoun][1]);
-	$(selector).children("h6").text(activeNounGroup[activeNoun][2]);
-	
-	// Clear all inputs
-	clearInputs(selector);
-	
-	if ( activeNounGroup[activeNoun][4] == "" ) {
-		$(selector + " input.nominativSingular").attr("disabled", "disabled");
-	}
-	if ( activeNounGroup[activeNoun][5] == "" ) {
-		$(selector + " input.genitivSingular").attr("disabled", "disabled");
-	}
-	if ( activeNounGroup[activeNoun][6] == "" ) {
-		$(selector + " input.nominativPlural").attr("disabled", "disabled");
-	}
-	if ( activeNounGroup[activeNoun][7] == "" ) {
-		$(selector + " input.dativPlural").attr("disabled", "disabled");
-	}
-}
-
-//================================
-//--------------------------------
-// Dropdown handler for noun games
-//--------------------------------
-//================================
-$("#nounTranslation").delegate(".dropdown-item", "click", function(){
-	activeNounGroup = [];
-	pickActiveGroup($(this), allNouns, activeNounGroup);
 });
 
-$("#nounCase").delegate(".dropdown-item", "click", function(){
-	activeNounGroup = [];
-	pickActiveGroup($(this), allNouns, activeNounGroup);
-});
-
-//================================
-//--------------------------------
-// Start button handler for noun games
-//--------------------------------
-//================================
-$("#nounCase button.gameButtonStart").click(function() {
-	setNextNoun("#nounCase");
-});
-
-$("#nounTranslation button.gameButtonStart").click(function() {
-	setNextNoun("#nounTranslation");
-});
-
-//================================
-//--------------------------------
-// Stop button handler for noun games
-//--------------------------------
-//================================
-$("#nounCase button.gameButtonStop").click(function() {
-	activeNoun = 0;
-	
-	clearInputs("#nounCase");
-	
-	$(this).siblings("h5").text("");
-	$(this).siblings("h6").text("");
-	
-	$(this).siblings(".gameButtonSkip").addClass("d-none");
-});
-
-
-$("#nounTranslation button.gameButtonStop").click(function() {
-	activeNoun = 0;
-	
-	clearInputs("#nounTranslation");
-	
-	$(this).siblings("h5").text("");
-	$(this).siblings("h6").text("");
-	
-	$(this).siblings(".gameButtonSkip").addClass("d-none");
-});
-
-//================================
-//--------------------------------
-// Skip button handler for noun games
-//--------------------------------
-//================================
-$("#nounCase button.gameButtonSkip").click(function() {
-	setNextNoun("#nounCase");
-});
-
-$("#nounTranslation button.gameButtonSkip").click(function() {
-	setNextNoun("#nounTranslation");
-});
-
-//================================
-//--------------------------------
-// Check button handler for noun games
-//--------------------------------
-//================================
+// Check button handler for nounCase quiz
 $("#nounCase button.gameButtonCheck").click(function() {
-	var formGroup = $(this).siblings(".form-group");
+	// Each get-key/selector pair
+	var checkNounSelectors = [ 	[ "&ns=", "#nounCase input.nominativSingular"],
+								[ "&gs=", "#nounCase input.genitivSingular"],
+								[ "&np=", "#nounCase input.nominativPlural"],
+								[ "&dp=", "#nounCase input.dativPlural"]];
 	
-	var ns = $("#nounCase input.nominativSingular").val();
-	var gs = $("#nounCase input.genitivSingular").val();
-	var np = $("#nounCase input.nominativPlural").val();
-	var dp = $("#nounCase input.dativPlural").val();
-	
-	var getString  = "validateNoun.php?baseword=" + activeNounGroup[activeNoun][3];
-	    getString += "&ns="+ns;
-		getString += "&gs="+gs;
-		getString += "&np="+np;
-		getString += "&dp="+dp;
-	
-	console.log(getString);
-	$.get(getString, function(data, status) {
+	// Send it
+	$.get(formGetRequest("validateNoun.php", activeNounGroup[activeNoun][3], checkNounSelectors), function(data, status) {
 		if ( data.status == "OK" ) {
 			var allCorrect = true;
 			
-			if ( data.message[0] == 0 ) {
-				setAnimationForElement("#nounCase input.nominativSingular", "wrong 1s");
-				allCorrect = false;
-			}
-			if ( data.message[1] == 0 ) {
-				setAnimationForElement("#nounCase input.genitivSingular", "wrong 1s");
-				allCorrect = false;
-			}
-			if ( data.message[2] == 0 ) {
-				setAnimationForElement("#nounCase input.nominativPlural", "wrong 1s");
-				allCorrect = false;
-			}
-			if ( data.message[3] == 0 ) {
-				setAnimationForElement("#nounCase input.dativPlural", "wrong 1s");
-				allCorrect = false;
+			// Check if the user input was correct, and if it isn't indicate it with the "wrong" animation
+			for ( var index = 0; index < checkNounSelectors.length; index++ ) {
+				if ( data.message[index] == 0 && activeNounGroup[activeNoun][4+Math.floor(index/2)] ) {
+					setAnimationForElement(checkNounSelectors[index][1], "wrong 1s");
+					allCorrect = false;
+				}
 			}
 			
 			if ( allCorrect ) {
-				$("#nounCase button.gameButtonCheck").siblings(".form-group").children("input").each(function () {
-					// Don't blink if it's disabled
-					if ( $(this).attr("disabled") != "disabled" ) {
-						setAnimationForElement(this, "correct 1s");
-					}
-				});
-				$("#nounCase button.gameButtonCheck").addClass("d-none");
-				$("#nounCase button.gameButtonNext").removeClass("d-none");
-				$("#nounCase button.gameButtonSkip").addClass("d-none");
+				correctWordsHandler("#nounCase")
 			}
 		}
 	});
 });
 
+
+
+// Check button handler for nounTranslation quiz
 $("#nounTranslation button.gameButtonCheck").click(function() {
-	var formGroup = $(this).siblings(".form-group");
+	// Each get-key/selector pair
+	var checkNounSelectors = [ 	[ "&ns=", "#nounTranslation input.nominativSingular"],
+								[ "&np=", "#nounTranslation input.nominativPlural"]];
 	
-	var ns = $("#nounTranslation input.nominativSingular").val();
-	var np = $("#nounTranslation input.nominativPlural").val();
-	
-	var getString  = "validateNoun.php?baseword=" + activeNounGroup[activeNoun][3];
-	    getString += "&ns="+ns;
-		getString += "&np="+np;
-	
-	console.log(getString);
-	$.get(getString, function(data, status) {
+	$.get(formGetRequest("validateNoun.php", activeNounGroup[activeNoun][3], checkNounSelectors), function(data, status) {
 		if ( data.status == "OK" ) {
 			var allCorrect = true;
 			
-			if ( data.message[0] == 0 ) {
+			if ( data.message[0] == 0 && activeNounGroup[activeNoun][4] ) {
 				setAnimationForElement("#nounTranslation input.nominativSingular", "wrong 1s");
 				allCorrect = false;
 			}
-			if ( data.message[2] == 0 ) {
+			if ( data.message[2] == 0 && activeNounGroup[activeNoun][5] ) {
 				setAnimationForElement("#nounTranslation input.nominativPlural", "wrong 1s");
 				allCorrect = false;
 			}
 			
 			if ( allCorrect ) {
-				$("#nounTranslation button.gameButtonCheck").siblings(".form-group").children("input").each(function () {
-					// Don't blink if it's disabled
-					if ( $(this).attr("disabled") != "disabled" ) {
-						setAnimationForElement(this, "correct 1s");
-					}
-				});
-				$("#nounTranslation button.gameButtonCheck").addClass("d-none");
-				$("#nounTranslation button.gameButtonNext").removeClass("d-none");
-				$("#nounTranslation button.gameButtonSkip").addClass("d-none");
+				correctWordsHandler("#nounTranslation");
 			}
 		}
 	});
 });
 
-//================================
-//--------------------------------
-// Reset button handler for noun games
-//--------------------------------
-//================================
-$("#nounCase button.gameButtonReset").click(function() {
-	nounReset("#nounCase");
-});
 
-$("#nounTranslation button.gameButtonReset").click(function() {
-	nounReset("#nounTranslation");
-});
-
-//================================
-//--------------------------------
-// Next button handler for noun games
-//--------------------------------
-//================================
-$("#nounCase button.gameButtonNext").click(function() {
-	nextNounHandler($(this), "#nounCase");
-});
-
-$("#nounTranslation button.gameButtonNext").click(function() {
-	//nextNounHandler($(this), "#nounTranslation");
-	activeNoun = nextQuizElement(activeNoun, activeNounGroup, 1, 2, "#nounTranslation");
-});
-
-// Helper function for common code for the next buttons
-function nextNounHandler(sourceElement, selector) {
-	sourceElement.addClass("d-none");
-	sourceElement.siblings(".gameButtonCheck").removeClass("d-none");
-	
-	activeNounGroup.splice(activeNoun, 1);
-	
-	if ( activeNounGroup.length == 0 ) {
-		$("#myModal").modal();
-		sourceElement.siblings(".gameButtonReset").click();
+// Used to disable the text input fields that does not have a singular or plural
+function disableNounInputs(selector) {
+	// Disable the input for nouns that has no singular/plural
+	if ( activeNounGroup[activeNoun][4] == false ) {
+		$(selector + " input.nominativSingular").attr("disabled", "enabled");
+		$(selector + " input.genitivSingular").attr("disabled", "enabled");
 	}
-	else {
-		setNextNoun(selector);
-		
-		$(selector + " button.gameButtonSkip").removeClass("d-none");
+	if ( activeNounGroup[activeNoun][5] == false ) {
+		$(selector + " input.nominativPlural").attr("disabled", "enabled");
+		$(selector + " input.dativPlural").attr("disabled", "enabled");
 	}
 }
+
+
+
+// Dropdown handler for noun games
+function nounGroupClick(event) {
+	activeNounGroup = [];
+	pickActiveGroup(event.target, event.data.selector, allNouns, activeNounGroup);
+}
+$("#nounTranslation").delegate(".dropdown-item", "click", {selector: "#nounTranslation"}, nounGroupClick);
+$("#nounCase").delegate(".dropdown-item", "click", {selector: "#nounCase"}, nounGroupClick);
+
+
+
+// Stop button handler for noun games
+function nounButtonStop(event) {
+	activeNoun = nextQuizElement(activeNoun, activeNounGroup, -1, -1, event.data.selector);
+}
+$("#nounCase button.gameButtonStop").click({selector: "#nounCase"}, nounButtonStop);
+$("#nounTranslation button.gameButtonStop").click({selector: "#nounTranslation"}, nounButtonStop);
+
+
+
+// Start button handler for noun games
+function nounButtonStart(event) {
+	activeNoun = nextQuizElement(activeNoun, activeNounGroup, 1, 2, event.data.selector);
+	disableNounInputs(event.data.selector);
+}
+$("#nounCase button.gameButtonStart").click({selector: "#nounCase"}, nounButtonStart);
+$("#nounTranslation button.gameButtonStart").click({selector: "#nounTranslation"}, nounButtonStart);
+
+
+
+// Skip button handler for noun games
+function nounButtonSkip(event) {
+	activeNoun = nextQuizElement(activeNoun, activeNounGroup, 1, 2, event.data.selector);
+	disableNounInputs(event.data.selector);
+}
+$("#nounCase button.gameButtonSkip").click({selector: "#nounCase"}, nounButtonSkip);
+$("#nounTranslation button.gameButtonSkip").click({selector: "#nounTranslation"}, nounButtonSkip);
+
+
+
+// Helper function to reset noun related games
+function nounButtonReset(event) {
+	activeNounGroup = allNouns.slice();
+	
+	$(event.data.selector + " > .dropdown > button").text("Alle navneord");
+	$(event.data.selector).children(".gameButtonStop").click();
+}
+$("#nounCase button.gameButtonReset").click({selector: "#nounCase"}, nounButtonReset);
+$("#nounTranslation button.gameButtonReset").click({selector: "#nounTranslation"}, nounButtonReset);
+
+
+
+// Next button handler for noun games
+function nounButtonNext(event) {
+	if ( !commonButtonNext(event.data.selector, activeNoun, activeNounGroup) ) {
+		activeNoun = nextQuizElement(activeNoun, activeNounGroup, 1, 2, event.data.selector);
+		disableNounInputs(event.data.selector);
+	}
+}
+$("#nounCase button.gameButtonNext").click({selector: "#nounCase"}, nounButtonNext);
+$("#nounTranslation button.gameButtonNext").click({selector: "#nounTranslation"}, nounButtonNext);
