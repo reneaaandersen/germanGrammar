@@ -66,9 +66,21 @@ $(".gameButtonStop").each(function() {
  */
 function setAnimationForElement(selector, animation) {
 	var oldElement = $(selector);
+	var hadFocus = oldElement.is(":focus");
 	var newElement = $(selector).clone();
 	oldElement.before(newElement);
 	oldElement.remove();
+	
+	// If the old element had focus, we can set it for the new element too
+	if ( hadFocus && newElement.attr("type") == "text" ) {
+		newElement.focus();
+	
+		// Reinsert the old elements text to move the cursor to the end
+		// Actual correct positioning of the cursor is browser dependent
+		var oldText = newElement.val();
+		newElement.val("");
+		newElement.val(oldText);
+	}
 	newElement.css("animation", animation);
 }
 
@@ -100,14 +112,27 @@ function getRandomArrayElement(array) {
  * - selector 	The jQuery selector for the quiz container 
  */
 function clearInputs(selector) {
+	var firstElement = null;
+	
 	$(selector + " input").each(function() {
+		if ( firstElement == null ) {
+			firstElement = $(this);
+		}
 		$(this).prop('checked', false);
 		// Do NOT remove the val of a radio/checkbox it'll make you sad
-		if ( $(this).prop('type') == 'text' ) {
+		if ( $(this).attr('type') == 'text' ) {
 			$(this).removeAttr("disabled");
 			$(this).val("");
 		}		
 	});
+	if ( firstElement != null && firstElement.attr('type') == 'text' ) {
+		if ( $(selector + " .gameButtonStart").hasClass("d-none") ) {
+			firstElement.focus();
+		}
+		else {
+			$(selector + " .gameButtonStart").focus();
+		}
+	}
 }
 
 /* pickActiveGroup: Common code for changing the sub-group of the quiz

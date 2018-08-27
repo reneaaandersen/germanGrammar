@@ -135,3 +135,13 @@ $("#prepositionClass .gameButtonSkip").click(function(){
 	activePreposition = nextQuizElement(activePreposition, activePrepositionGroup, 3, -1, "#prepositionClass");
 });
 
+$("#prepositionClass").delegate("", "keypress", function(event) {
+	if ( event.which == 13 ) {
+		if ( $("#prepositionClass button.gameButtonCheck").hasClass("d-none") ) {
+			$("#prepositionClass button.gameButtonNext").click();
+		}
+		if ( $("#prepositionClass button.gameButtonNext").hasClass("d-none") ) {
+			$("#prepositionClass button.gameButtonCheck").click();
+		}
+	}
+});

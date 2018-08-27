@@ -73,13 +73,13 @@ $("#nounCase").delegate("", "keypress", function(event) {
 	}
 });
 
-$("#nounCase").delegate("input", "keypress", function(event) {
+$("#nounTranslation").delegate("input", "keypress", function(event) {
 	if ( event.which == 13 ) {
-		if ( $("#nounCase button.gameButtonCheck").hasClass("d-none") ) {
-			$("#nounCase button.gameButtonNext").click();
+		if ( $("#nounTranslation button.gameButtonCheck").hasClass("d-none") ) {
+			$("#nounTranslation button.gameButtonNext").click();
 		}
-		if ( $("#nounCase button.gameButtonNext").hasClass("d-none") ) {
-			$("#nounCase button.gameButtonCheck").click();
+		if ( $("#nounTranslation button.gameButtonNext").hasClass("d-none") ) {
+			$("#nounTranslation button.gameButtonCheck").click();
 		}
 	}
 });

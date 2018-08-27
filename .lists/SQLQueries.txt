@@ -1,0 +1,42 @@
+SELECT * 
+FROM nouns 
+WHERE count > 0 AND
+NOT EXISTS (SELECT * FROM verbs WHERE nouns.base = verbs.infinitiv)
+
+===
+
+SELECT * 
+FROM nouns 
+WHERE count > 0 AND
+NOT EXISTS (SELECT * FROM verbs WHERE nouns.base = verbs.infinitiv) AND
+NOT EXISTS (SELECT * FROM adjektives WHERE nouns.base = adjektives.positiv)
+
+===
+
+SELECT * FROM verbs v1 INNER JOIN verbs v2 WHERE v1.infinitiv=v2.infinitiv AND NOT v1.id=v2.id 
+
+==========
+
+SELECT DISTINCT tags.tagDescription, verbs.infinitiv FROM tags 
+INNER JOIN verbstotags ON tags.tagID = verbstotags.tagID
+INNER JOIN verbs ON verbstotags.verbID = verbs.id
+ORDER BY verbs.infinitiv
+
+
+# Select all nouns that has a tag
+SELECT DISTINCT tags.tagDescription, nouns.base FROM tags 
+INNER JOIN nounstotags ON tags.tagID = nounstotags.tagID
+INNER JOIN nouns ON nounstotags.nounID = nouns.id
+ORDER BY nouns.base
+
+# Select all nouns that has a tag (more verbose)
+SELECT DISTINCT nouns.id, tags.tagID, tags.tagDescription, nouns.base FROM tags 
+INNER JOIN nounstotags ON tags.tagID = nounstotags.tagID
+INNER JOIN nouns ON nounstotags.nounID = nouns.id
+ORDER BY nouns.base
+
+# Select all the verbs that has a tag, but no danish title
+SELECT DISTINCT tags.tagDescription, verbs.infinitiv FROM tags 
+INNER JOIN verbstotags ON tags.tagID = verbstotags.tagID
+INNER JOIN verbs ON verbstotags.verbID = verbs.id
+WHERE verbs.danish=""
