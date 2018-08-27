@@ -1,6 +1,7 @@
 // All the prepositions that is known to the human kind
 // (or what can be found within 15 minutes of googling :)
 // FIXME?: Why is the case set twice for an element?
+// ------> The first element is not used, but the effort to remove it is much larger than the need for removal
 // NOTE: As it is currently the danish translations are not needed, however if a
 //       preposition translation quiz is added they might be.
 var allPrepositions = 	[	[ 	"Dativ",		
@@ -77,21 +78,27 @@ var allPrepositions = 	[	[ 	"Dativ",
 var activePrepositionGroup = allPrepositions.slice();
 var activePreposition = 0;
 
+// Handler for whenever the game reset button is pressed
 $("#prepositionClass .gameButtonReset").click(function(){
 	activePrepositionGroup = allPrepositions.slice();
 	$(this).siblings(".gameButtonStop").click();
 });
 
+// Handler for whenever the game stop button is pressed
 $("#prepositionClass .gameButtonStop").click(function(){
 	nextQuizElement(activePreposition, activePrepositionGroup, -1, -1, "#prepositionClass");
 });
 
+// Handler for whenever the game start button is pressed
 $("#prepositionClass .gameButtonStart").click(function(){
 	activePreposition = nextQuizElement(activePreposition, activePrepositionGroup, 3, -1, "#prepositionClass");
 });
 
+// Handler for whenever the game check button is pressed
 $("#prepositionClass .gameButtonCheck").click(function(){
 	var isCorrect = true;
+	
+	// Check based on the case in the array element
 	switch (activePrepositionGroup[activePreposition][4]) {
 		case "Dativ":
 			if ( $("#prepositionClass .dativPreposition:checked").val() != "on" ) {
@@ -115,33 +122,29 @@ $("#prepositionClass .gameButtonCheck").click(function(){
 			break;
 	}
 	if ( isCorrect ) {
+		// Flash all the elements when the correct choice is picked
 		setAnimationForElement($("#prepositionClass :checked").parent().parent(), "correct 1s");
 		$(this).siblings(".gameButtonNext").removeClass("d-none");
 		$(this).siblings(".gameButtonSkip").addClass("d-none");
 		$(this).addClass("d-none");
 	}
 	else {
+		// Flash the wrong element only when it's picked (else it would be easy to see which one is correct)
 		setAnimationForElement($("#prepositionClass :checked").parent().parent(), "wrong 1s");
 	}
 });
 
+// Handler for whenever the game next button is pressed
 $("#prepositionClass .gameButtonNext").click(function(){
 	if ( !commonButtonNext("#prepositionClass", activePreposition, activePrepositionGroup) ) {
 		activePreposition = nextQuizElement(activePreposition, activePrepositionGroup, 3, -1, "#prepositionClass");
 	}
 });
 
+// Handler for whenever the game skip button is pressed
 $("#prepositionClass .gameButtonSkip").click(function(){
 	activePreposition = nextQuizElement(activePreposition, activePrepositionGroup, 3, -1, "#prepositionClass");
 });
 
-$("#prepositionClass").delegate("", "keypress", function(event) {
-	if ( event.which == 13 ) {
-		if ( $("#prepositionClass button.gameButtonCheck").hasClass("d-none") ) {
-			$("#prepositionClass button.gameButtonNext").click();
-		}
-		if ( $("#prepositionClass button.gameButtonNext").hasClass("d-none") ) {
-			$("#prepositionClass button.gameButtonCheck").click();
-		}
-	}
-});
+// Enter and escape handler for preposition quizzes
+$("#prepositionClass").delegate("", "keypress", {selector: "#prepositionClass"}, escapeHandler);

@@ -62,27 +62,9 @@ function fetchNouns(group) {
 	});
 }
 
-$("#nounCase").delegate("", "keypress", function(event) {
-	if ( event.which == 13 ) {
-		if ( $("#nounCase button.gameButtonCheck").hasClass("d-none") ) {
-			$("#nounCase button.gameButtonNext").click();
-		}
-		if ( $("#nounCase button.gameButtonNext").hasClass("d-none") ) {
-			$("#nounCase button.gameButtonCheck").click();
-		}
-	}
-});
-
-$("#nounTranslation").delegate("input", "keypress", function(event) {
-	if ( event.which == 13 ) {
-		if ( $("#nounTranslation button.gameButtonCheck").hasClass("d-none") ) {
-			$("#nounTranslation button.gameButtonNext").click();
-		}
-		if ( $("#nounTranslation button.gameButtonNext").hasClass("d-none") ) {
-			$("#nounTranslation button.gameButtonCheck").click();
-		}
-	}
-});
+// Enter and escape handler for noun quizzes
+$("#nounCase").delegate("", "keypress", {selector: "#nounCase"}, escapeHandler);
+$("#nounTranslation").delegate("", "keypress", {selector: "#nounTranslation"}, escapeHandler);
 
 // Check button handler for nounCase quiz
 $("#nounCase button.gameButtonCheck").click(function() {
@@ -147,10 +129,12 @@ function disableNounInputs(selector) {
 	if ( activeNounGroup[activeNoun][4] == false ) {
 		$(selector + " input.nominativSingular").attr("disabled", "enabled");
 		$(selector + " input.genitivSingular").attr("disabled", "enabled");
+		$(selector + " input.nominativPlural").focus();
 	}
 	if ( activeNounGroup[activeNoun][5] == false ) {
 		$(selector + " input.nominativPlural").attr("disabled", "enabled");
 		$(selector + " input.dativPlural").attr("disabled", "enabled");
+		$(selector + " input.nominativSingular").focus();
 	}
 }
 

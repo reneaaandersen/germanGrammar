@@ -220,6 +220,25 @@ function commonButtonNext(selector, activeElement, activeGroup) {
 	return false;
 }
 
+/* escapeHandler: Common keypress handler 
+ * > Returns	Nothing
+ * - event		The event data (selector must be set)
+ */
+function escapeHandler(event) {
+	if ( event.key == "Escape" ) {
+		console.log(event.data.selector + " button.gameButtonStop");
+		$(event.data.selector + " button.gameButtonStop").click();
+	}
+	if ( event.which == 13 ) {
+		if ( $(event.data.selector + " button.gameButtonCheck").hasClass("d-none") && $(event.data.selector + " button.gameButtonStart").hasClass("d-none") ) {
+			$(event.data.selector + " button.gameButtonNext").click();
+		}
+		if ( $(event.data.selector + " button.gameButtonNext").hasClass("d-none") && $(event.data.selector + " button.gameButtonStart").hasClass("d-none") ) {
+			$(event.data.selector + " button.gameButtonCheck").click();
+		}
+	}
+}
+
 /* correctVebHandler: Common code for events that happen on a correct word 
  * > Returns	Nothing
  * - selector   The selector of the quiz container

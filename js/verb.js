@@ -141,24 +141,6 @@ $("#verbTranslation button.gameButtonCheck").click(function() {
 	}
 });
 
-$("#verbTranslation").delegate("", "keypress", function(event) {
-	if ( event.which == 13 ) {
-		if ( $("#verbTranslation button.gameButtonCheck").hasClass("d-none") && $("#verbTranslation button.gameButtonStart").hasClass("d-none") ) {
-			$("#verbTranslation button.gameButtonNext").click();
-		}
-		if ( $("#verbTranslation button.gameButtonNext").hasClass("d-none") && $("#verbTranslation button.gameButtonStart").hasClass("d-none") ) {
-			$("#verbTranslation button.gameButtonCheck").click();
-		}
-	}
-});
-
-$("#verbConjugation").delegate("input", "keypress", function(event) {
-	if ( event.which == 13 ) {
-		if ( $("#verbConjugation button.gameButtonCheck").hasClass("d-none") && $("#verbConjugation button.gameButtonStart").hasClass("d-none") ) {
-			$("#verbConjugation button.gameButtonNext").click();
-		}
-		if ( $("#verbConjugation button.gameButtonNext").hasClass("d-none") && $("#verbConjugation button.gameButtonStart").hasClass("d-none") ) {
-			$("#verbConjugation button.gameButtonCheck").click();
-		}
-	}
-});
+// Enter and escape handler for verb quizzes
+$("#verbTranslation").delegate("", "keypress", {selector: "#verbTranslation"}, escapeHandler);
+$("#verbConjugation").delegate("", "keypress", {selector: "#verbConjugation"}, escapeHandler);
